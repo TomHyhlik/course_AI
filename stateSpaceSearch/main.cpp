@@ -6,17 +6,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>    
 
 #define SHOW     dataSet_print(); std::cin.get();
 
 
-struct point 
+struct point
 {
     int x, y;
-
-    point(int val1, int val2) : x(val1), y(val2) {}
-    point() { x = y = 0; }
-
 };
 
 #define SIZE_MAXROWS            100
@@ -32,13 +29,17 @@ point point_end;
 #define fs_wall         'X'
 #define fs_point_start  'S'
 #define fs_point_end    'E'
-#define fs_beenHere     '.'
+#define fs_beenHere     '#'
 #define fs_focus        '0'
+
+// #define FILE        "./dataset/4.txt"
+#define FILE        "./dataset/36.txt"
+
 
 ///////////////////////////////////////////////////////
 void readFile()
 {
-   std::ifstream file("./dataset/4.txt", std::ios::binary);
+   std::ifstream file(FILE, std::ios::binary);
    std::streambuf* raw_buffer = file.rdbuf();
    char* block = new char[1024];
    raw_buffer->sgetn(block, 1024);
@@ -58,8 +59,8 @@ void readFile()
             currentRow++;
 
         } else {
-            sscanf(pch, "start %d, %d", &point_start.x, &point_start.y);
-            sscanf(pch, "end %d, %d", &point_end.x, &point_end.y);
+            sscanf(pch, "start %d, %d", &point_start.y, &point_start.x);
+            sscanf(pch, "end %d, %d", &point_end.y, &point_end.x);
         }
 
         // printf ("%s\n",pch);
@@ -82,20 +83,83 @@ void dataSet_print()
 
 }
 ///////////////////////////////////////////////////////
-void do_RandomSearch()
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+class searchAlgo 
 {
-    point point_focus = point_start;
 
-    while ( point_focus.x != point_end.x &&
-            point_focus.y != point_end.y) {
+protected:
 
-        
+    virtual void start() = 0;
+
+};
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+class RandomSearch : public searchAlgo
+{
+    std::vector <point> frontFocusPoints;
 
 
-        SHOW
+    bool checkNeighbours(point pCenter) 
+    {
+        point p;
+        for (p.x = pCenter.x - 1; p.x <= pCenter.x + 1; p.x++) {
+            for (p.y = pCenter.y - 1; p.y <= pCenter.y + 1; p.y++) {
+
+                if (p.x == pCenter.x && p.y == pCenter.y) continue;
+            
+                switch (dataSet[p.x][p.y])
+                {
+                case fs_space:
+                    dataSet[p.x][p.y] = fs_beenHere;
+                    frontFocusPoints.push_back(p);
+                    break;
+                case fs_point_end:
+                    std::cout << "Found the End!\n";
+                    return true;
+                }
+
+            }
+        }
+        return false;
     }
-}
 
+    point getFocusPoint_random()
+    {
+        // int indexOfSelectedPoint = 73 % frontFocusPoints.size();
+        int indexOfSelectedPoint = rand() % frontFocusPoints.size();
+
+
+        point p = frontFocusPoints.at(indexOfSelectedPoint);
+        frontFocusPoints.erase(frontFocusPoints.begin()+indexOfSelectedPoint);
+
+        return p;
+    }
+
+
+public:
+
+    void start()
+    {
+        srand (time(NULL));
+
+        point point_focus = point_start;
+        while (true) 
+        {
+            if (checkNeighbours(point_focus)) break;
+
+            point_focus = getFocusPoint_random();
+            dataSet[point_focus.x][point_focus.y] = fs_focus;
+
+            SHOW
+
+        }
+        std::cout << "Finish!\n\n";
+    }
+};
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 int main(void)
 {
@@ -113,8 +177,8 @@ int main(void)
 
     SHOW
 
-    do_RandomSearch();
-
+    RandomSearch obj;
+    obj.start();
 
 
     std::cout << "ApEnd...........................\n";
