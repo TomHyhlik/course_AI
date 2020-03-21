@@ -9,6 +9,7 @@
 #include <time.h>    
 
 #define SHOW     dataSet_print(); std::cin.get();
+// #define SHOW     dataSet_print();
 
 
 struct point
@@ -16,8 +17,10 @@ struct point
     int x, y;
 };
 
-#define SIZE_MAXROWS            100
-#define SIZE_MAXCOLUMNS         100
+#define SIZE_MAXROWS            1000
+#define SIZE_MAXCOLUMNS         1000
+
+#define SIZE_FILEMAX            16384
 
 char dataSet[SIZE_MAXROWS][SIZE_MAXCOLUMNS];
 
@@ -32,8 +35,8 @@ point point_end;
 #define fs_beenHere     '#'
 #define fs_focus        '0'
 
-// #define FILE        "./dataset/4.txt"
 #define FILE        "./dataset/36.txt"
+// #define FILE        "./dataset/72.txt"
 
 
 ///////////////////////////////////////////////////////
@@ -41,8 +44,8 @@ void readFile()
 {
    std::ifstream file(FILE, std::ios::binary);
    std::streambuf* raw_buffer = file.rdbuf();
-   char* block = new char[1024];
-   raw_buffer->sgetn(block, 1024);
+   char* block = new char[16384];
+   raw_buffer->sgetn(block, 16384);
 
     // std::cout << block;
 
@@ -103,24 +106,32 @@ class RandomSearch : public searchAlgo
 
     bool checkNeighbours(point pCenter) 
     {
-        point p;
-        for (p.x = pCenter.x - 1; p.x <= pCenter.x + 1; p.x++) {
-            for (p.y = pCenter.y - 1; p.y <= pCenter.y + 1; p.y++) {
+        point pointsToCheck[] = {
+            {pCenter.x - 1, pCenter.y},
+            {pCenter.x, pCenter.y - 1},
+            {pCenter.x, pCenter.y + 1},
+            {pCenter.x + 1, pCenter.y},
+        };
 
-                if (p.x == pCenter.x && p.y == pCenter.y) continue;
-            
-                switch (dataSet[p.x][p.y])
-                {
-                case fs_space:
-                    dataSet[p.x][p.y] = fs_beenHere;
-                    frontFocusPoints.push_back(p);
-                    break;
-                case fs_point_end:
-                    std::cout << "Found the End!\n";
-                    return true;
-                }
+        for (int i = 0; i < 4; i++) {
+            if (checkPoint(pointsToCheck[i])) return true;
 
-            }
+        }
+
+        return false;
+    }
+
+    bool checkPoint(point p) 
+    {
+        switch (dataSet[p.x][p.y])
+        {
+        case fs_space:
+            dataSet[p.x][p.y] = fs_beenHere;
+            frontFocusPoints.push_back(p);
+            break;
+        case fs_point_end:
+            std::cout << "Found the End!\n";
+            return true;
         }
         return false;
     }
@@ -148,6 +159,8 @@ public:
         while (true) 
         {
             if (checkNeighbours(point_focus)) break;
+
+            SHOW
 
             point_focus = getFocusPoint_random();
             dataSet[point_focus.x][point_focus.y] = fs_focus;
