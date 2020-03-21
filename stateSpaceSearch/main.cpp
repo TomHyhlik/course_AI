@@ -8,9 +8,15 @@
 #include <stdlib.h>
 #include <time.h>    
 
-#define SHOW     dataSet_print(); std::cin.get();
-// #define SHOW     dataSet_print();
+// #define FASTMODE
 
+
+
+#ifdef FASTMODE
+    #define SHOW     dataSet_print();
+#else
+    #define SHOW     dataSet_print(); std::cin.get();
+#endif
 
 struct point
 {
@@ -90,18 +96,9 @@ void dataSet_print()
 ///////////////////////////////////////////////////////
 class searchAlgo 
 {
-
 protected:
-
-    virtual void start() = 0;
-
-};
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
-class RandomSearch : public searchAlgo
-{
     std::vector <point> frontFocusPoints;
+
 
 
     bool checkNeighbours(point pCenter) 
@@ -136,25 +133,12 @@ class RandomSearch : public searchAlgo
         return false;
     }
 
-    point getFocusPoint_random()
-    {
-        // int indexOfSelectedPoint = 73 % frontFocusPoints.size();
-        int indexOfSelectedPoint = rand() % frontFocusPoints.size();
-
-
-        point p = frontFocusPoints.at(indexOfSelectedPoint);
-        frontFocusPoints.erase(frontFocusPoints.begin()+indexOfSelectedPoint);
-
-        return p;
-    }
-
+    virtual point getNextFocusPoint() = 0;
 
 public:
 
     void start()
     {
-        srand (time(NULL));
-
         point point_focus = point_start;
         while (true) 
         {
@@ -162,13 +146,62 @@ public:
 
             SHOW
 
-            point_focus = getFocusPoint_random();
+            point_focus = getNextFocusPoint();
             dataSet[point_focus.x][point_focus.y] = fs_focus;
 
             SHOW
 
         }
         std::cout << "Finish!\n\n";
+    }
+
+};
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+class search_Random : public searchAlgo
+{
+    point getNextFocusPoint() override
+    {
+        // int indexOfSelectedPoint = 73 % frontFocusPoints.size();
+        int indexOfSelectedPoint = rand() % frontFocusPoints.size();
+
+        point p = frontFocusPoints.at(indexOfSelectedPoint);
+        frontFocusPoints.erase(frontFocusPoints.begin()+indexOfSelectedPoint);
+
+        return p;
+    }
+
+public:
+    search_Random() {
+        srand (time(NULL));
+    }
+
+};
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+class search_BreadthFirst : public searchAlgo
+{
+    point getNextFocusPoint() override
+    {
+        point p = frontFocusPoints.at(0);
+        frontFocusPoints.erase(frontFocusPoints.begin());
+
+        return p;
+    }
+};
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+class search_DeepFirst : public searchAlgo
+{
+    point getNextFocusPoint() override
+    {
+        point p = frontFocusPoints.at(0);
+        frontFocusPoints.erase(frontFocusPoints.begin());
+
+        return p;
     }
 };
 ///////////////////////////////////////////////////////
@@ -190,9 +223,11 @@ int main(void)
 
     SHOW
 
-    RandomSearch obj;
-    obj.start();
+    // search_Random obj;
+    // search_BreadthFirst obj;
+    search_DeepFirst obj;
 
+    obj.start();
 
     std::cout << "ApEnd...........................\n";
     return 0;
