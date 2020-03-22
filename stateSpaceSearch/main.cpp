@@ -11,7 +11,6 @@
 // #define FASTMODE
 
 
-
 #ifdef FASTMODE
     #define SHOW     dataSet_print();
 #else
@@ -41,6 +40,7 @@ point point_end;
 #define fs_beenHere     '#'
 #define fs_focus        '0'
 
+// #define FILE        "./dataset/0.txt"
 #define FILE        "./dataset/36.txt"
 // #define FILE        "./dataset/72.txt"
 
@@ -101,20 +101,24 @@ protected:
 
 
 
-    bool checkNeighbours(point pCenter) 
+    virtual bool checkNeighbours(point pCenter) 
     {
-        point pointsToCheck[] = {
+        std::vector <point> pointsToCheck = {
             {pCenter.x - 1, pCenter.y},
             {pCenter.x, pCenter.y - 1},
             {pCenter.x, pCenter.y + 1},
             {pCenter.x + 1, pCenter.y},
         };
 
-        for (int i = 0; i < 4; i++) {
-            if (checkPoint(pointsToCheck[i])) return true;
+        while (!pointsToCheck.empty()) {
 
+            int indexOfSelectedPoint = rand() % pointsToCheck.size();
+
+            bool foundEnd = checkPoint(pointsToCheck.at(indexOfSelectedPoint));
+            if (foundEnd) return true;
+
+            pointsToCheck.erase(pointsToCheck.begin()+indexOfSelectedPoint);
         }
-
         return false;
     }
 
@@ -135,12 +139,16 @@ protected:
 
     virtual point getNextFocusPoint() = 0;
 
+    bool pointsEqual(point p1, point p2) {
+        return (p1.x != p2.x || p1.y != p2.y);
+    }
+
 public:
 
     void start()
     {
         point point_focus = point_start;
-        while (true) 
+        while (pointsEqual(point_focus, point_end)) 
         {
             if (checkNeighbours(point_focus)) break;
 
@@ -171,12 +179,6 @@ class search_Random : public searchAlgo
 
         return p;
     }
-
-public:
-    search_Random() {
-        srand (time(NULL));
-    }
-
 };
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -185,7 +187,7 @@ class search_BreadthFirst : public searchAlgo
 {
     point getNextFocusPoint() override
     {
-        point p = frontFocusPoints.at(0);
+        point p = frontFocusPoints.front();
         frontFocusPoints.erase(frontFocusPoints.begin());
 
         return p;
@@ -198,8 +200,8 @@ class search_DeepFirst : public searchAlgo
 {
     point getNextFocusPoint() override
     {
-        point p = frontFocusPoints.at(0);
-        frontFocusPoints.erase(frontFocusPoints.begin());
+        point p = frontFocusPoints.back();
+        frontFocusPoints.pop_back();
 
         return p;
     }
@@ -223,8 +225,11 @@ int main(void)
 
     SHOW
 
+    srand (time(NULL));
+
     // search_Random obj;
     // search_BreadthFirst obj;
+
     search_DeepFirst obj;
 
     obj.start();
