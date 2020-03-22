@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>    
-
+#include <math.h>
 // #define FASTMODE
 
 
@@ -43,6 +43,8 @@ point point_end;
 // #define FILE        "./dataset/0.txt"
 #define FILE        "./dataset/36.txt"
 // #define FILE        "./dataset/72.txt"
+
+// #define FILE        "./dataset/00_11_11_1550177690.txt"
 
 
 ///////////////////////////////////////////////////////
@@ -209,6 +211,45 @@ class search_DeepFirst : public searchAlgo
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
+class search_Greedy : public searchAlgo
+{
+
+    float getDistanceToEnd(point p) {
+        int dist_x = p.x - point_end.x;
+        int dist_y = p.y - point_end.y;
+
+        float d = sqrt((dist_x*dist_x) + (dist_y*dist_y));
+
+        printf("P_dist(%d, %d) = %f\n", p.x, p.y, d);
+
+        return d;
+    }
+
+    point getNextFocusPoint() override
+    {
+        float shortestDist_final = 0x8FFFFFFF;
+        int p_index = 0;
+
+        /* get the closest point to */
+        for (int i = 0; i < frontFocusPoints.size(); i++) {
+            float d = getDistanceToEnd(frontFocusPoints.at(i));
+            if (d < shortestDist_final) {
+                shortestDist_final = d;
+                p_index = i;
+            }
+        }
+        point p_closestToEnd = frontFocusPoints.at(p_index);
+        frontFocusPoints.erase(frontFocusPoints.begin() + p_index);
+
+        printf("Choosed point (%d, %d) = %f\n", p_closestToEnd.x, p_closestToEnd.y, shortestDist_final);
+
+
+        return p_closestToEnd;
+    }
+};
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 int main(void)
 {
     std::cout << "ApStart.........................\n";
@@ -229,8 +270,9 @@ int main(void)
 
     // search_Random obj;
     // search_BreadthFirst obj;
+    // search_DeepFirst obj;
+    search_Greedy obj;
 
-    search_DeepFirst obj;
 
     obj.start();
 
