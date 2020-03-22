@@ -81,6 +81,17 @@ protected:
         return -1;
     }
 
+    float getDistanceToEnd(point p) {
+        int dist_x = p.x - point_end.x;
+        int dist_y = p.y - point_end.y;
+
+        float d = sqrt((dist_x*dist_x) + (dist_y*dist_y));
+
+        printf("P_dist(%d, %d) = %f\n", p.x, p.y, d);
+
+        return d;
+    }
+
 
 
 public:

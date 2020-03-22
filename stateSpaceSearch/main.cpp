@@ -14,6 +14,7 @@
 #include "search_DeepFirst.h"
 #include "search_Greedy.h"
 #include "search_Dijkstr.h"
+#include "search_aStar.h"
 
 
 ///////////////////////////////////////////////////////
@@ -35,12 +36,11 @@ int main(void)
 
     SHOW
 
-
     // search_Random obj;
     // search_BreadthFirst obj;
     // search_DeepFirst obj;
     // search_Greedy obj;
-    search_Dijkstr obj;
+    search_aStar obj;
 
 
     obj.start();
