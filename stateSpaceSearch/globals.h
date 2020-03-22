@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <time.h>   
 
-// #define FASTMODE
+#define FASTMODE
 
 
 #ifdef FASTMODE
@@ -43,7 +43,7 @@ point point_end;
 #define fs_point_start  'S'
 #define fs_point_end    'E'
 #define fs_beenHere     '#'
-#define fs_focus        '0'
+#define fs_focus        'o'
 #define fs_resultPath   '.'
 
 

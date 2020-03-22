@@ -9,78 +9,46 @@
 
 class search_Dijkstr : public searchAlgo
 {
-    std::vector <std::vector <point>> routes;
+    std::vector <std::vector <point>> frontFocusRoutes;
 
 
-    // bool checkNeighbours(point pCenter) override
-    // {
-    //     std::vector <point> pointsToCheck = {
-    //         {pCenter.x - 1, pCenter.y},
-    //         {pCenter.x, pCenter.y - 1},
-    //         {pCenter.x, pCenter.y + 1},
-    //         {pCenter.x + 1, pCenter.y},
-    //     };
-
-    //     while (!pointsToCheck.empty()) {
-    //         int indexOfSelectedPoint = rand() % pointsToCheck.size();
-    //         bool foundEnd = checkPoint(pointsToCheck.at(indexOfSelectedPoint));
-    //         if (foundEnd) return true;
-
-    //         pointsToCheck.erase(pointsToCheck.begin()+indexOfSelectedPoint);
-    //     }
-    //     return false;
-    // }
-
-    int getIndexOf(point p_searched, std::vector <point> r) 
+    bool checkRoute(std::vector <point> r)
     {
-        int index = -1;
-        for (int i = 0; i < r.size();  i++) {
-            if (pointsEqual(r.at(i), p_searched)) {
-                index = i;
-                break;
-            }
+        point pCenter = r.back();
+
+        std::vector <point> pointsToCheck = {
+            {pCenter.x - 1, pCenter.y},
+            {pCenter.x, pCenter.y - 1},
+            {pCenter.x, pCenter.y + 1},
+            {pCenter.x + 1, pCenter.y},
+        };
+
+        while (!pointsToCheck.empty()) {
+            int indexOfSelectedPoint = rand() % pointsToCheck.size();
+            bool foundEnd = checkPoint(pointsToCheck.at(indexOfSelectedPoint));
+            if (foundEnd) return true;
+
+            pointsToCheck.erase(pointsToCheck.begin()+indexOfSelectedPoint);
         }
-        return index;
+        return false;
     }
 
-
-    void checkShortestRoute(point p)
-    {
-       for (int i = 0; i < routes.size(); i++) 
-        {
-            int dist = getIndexOf(p, routes.at(i));
-            if (dist != -1) 
-            {
-
-            }
-
-
-        }
-    }
-
-
-
-    virtual bool checkPoint(point p) override
+    bool checkPoint(point p) override
     {
         switch (dataSet[p.x][p.y])
         {
         case fs_space:
         {
-            dataSet[p.x][p.y] = fs_beenHere;
+            setPointVal(p, fs_beenHere);
+            
+            std::vector <point> r = frontFocusRoutes.front();
+            r.push_back(p);
 
-            int n = routes.size();
-            routes.reserve(n + 1);
-            routes.at(n).push_back(p);
+            frontFocusRoutes.push_back(r);
 
             break;
         }
-        case fs_focus:
-        // case fs_beenHere:
-            // checkShortestRoute(p);
-            break;
         case fs_point_end:
-            // checkShortestRoute(p);
-
             std::cout << "Found the End!\n";
             return true;
         }
@@ -88,37 +56,31 @@ class search_Dijkstr : public searchAlgo
     }
 
 
-    point getNextFocusPoint() override
-    {
-        // point p = frontFocusPoints.front();
-        point p = routes.front().back();
-
-        // frontFocusPoints.erase(frontFocusPoints.begin());
-        routes.front().erase(routes.front().begin());
-        return p;
-    }
-
 public:
     virtual void start() override
     {
-        point point_focus = point_start;
-        while (pointsEqual(point_focus, point_end)) 
+        frontFocusRoutes.push_back({point_start});
+                
+        while (!pointsEqual(frontFocusRoutes.front().back(), point_end)) 
         {
-            if (checkNeighbours(point_focus)) break;
+            if (checkRoute(frontFocusRoutes.front())) break;
 
             SHOW
 
-            point_focus = getNextFocusPoint();
-            dataSet[point_focus.x][point_focus.y] = fs_focus;
+            frontFocusRoutes.erase(frontFocusRoutes.begin());
+            setPointVal(frontFocusRoutes.front().back(),fs_focus);
 
             SHOW
-
         }
+
+        frontFocusRoutes.front().erase(frontFocusRoutes.front().begin());
+        pasteRoute(frontFocusRoutes.front());
+
+        SHOW
+
         std::cout << "Finish!\n\n";
     }
+
 };
-
-
-
 
 #endif

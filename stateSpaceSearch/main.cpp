@@ -13,12 +13,15 @@
 #include "search_BreadthFirst.h"
 #include "search_DeepFirst.h"
 #include "search_Greedy.h"
+#include "search_Dijkstr.h"
 
 
 ///////////////////////////////////////////////////////
 int main(void)
 {
     std::cout << "ApStart.........................\n";
+
+    srand (time(NULL));
 
     readFile();
 
@@ -32,13 +35,12 @@ int main(void)
 
     SHOW
 
-    srand (time(NULL));
 
     // search_Random obj;
     // search_BreadthFirst obj;
     // search_DeepFirst obj;
-    search_Greedy obj;
-    // // search_Dijkstr obj;
+    // search_Greedy obj;
+    search_Dijkstr obj;
 
 
     obj.start();

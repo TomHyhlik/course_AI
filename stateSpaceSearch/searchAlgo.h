@@ -55,18 +55,40 @@ protected:
         return false;
     }
 
-    virtual point getNextFocusPoint() = 0;
+    virtual point getNextFocusPoint() { return {0,0}; }
 
     bool pointsEqual(point p1, point p2) {
-        return (p1.x != p2.x || p1.y != p2.y);
+        return (p1.x == p2.x && p1.y == p2.y);
     }
+
+    void setPointVal(point p, char val) {
+        dataSet[p.x][p.y] = val;
+    }
+
+    void pasteRoute(std::vector <point> r) {
+        for (const point& p : r) {
+            setPointVal(p, fs_resultPath);
+        }
+    }
+
+    int getIndexOf(point p_searched, std::vector <point> r) 
+    {
+        for (int i = 0; i < r.size();  i++) {
+            if (pointsEqual(r.at(i), p_searched)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
 
 public:
 
     virtual void start()
     {
         point point_focus = point_start;
-        while (pointsEqual(point_focus, point_end)) 
+        while (!pointsEqual(point_focus, point_end)) 
         {
             if (checkNeighbours(point_focus)) break;
 
