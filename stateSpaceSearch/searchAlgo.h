@@ -49,7 +49,7 @@ protected:
             frontFocusPoints.push_back(p);
             break;
         case fs_point_end:
-            std::cout << "Found the End!\n";
+            // std::cout << "Found the End!\n";
             return true;
         }
         return false;
@@ -101,6 +101,8 @@ public:
         point point_focus = point_start;
         while (!pointsEqual(point_focus, point_end)) 
         {
+            ctr_iterations++;
+
             if (checkNeighbours(point_focus)) break;
 
             SHOW
@@ -111,21 +113,9 @@ public:
             SHOW
 
         }
-        std::cout << "Finish!\n\n";
     }
 
 };
-
-
-
-
-
-
-
-
-
-
-
 
 
 

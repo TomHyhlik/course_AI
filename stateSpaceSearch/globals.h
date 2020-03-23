@@ -21,7 +21,7 @@
 #endif
 
 
-
+int ctr_iterations;
 
 struct point {
     int x, y;
@@ -37,6 +37,8 @@ char dataSet[SIZE_MAXROWS][SIZE_MAXCOLUMNS];
 point point_start;
 point point_end;
 
+#define FILEPATH    "./dataset/"
+
 ///////////////////////////////////////////////////////
 #define fs_space        ' '
 #define fs_wall         'X'
@@ -48,48 +50,33 @@ point point_end;
 
 
 
-// #define FILE        "./dataset/0.txt"
-#define FILE        "./dataset/36.txt"
-// #define FILE        "./dataset/72.txt"
-
-// #define FILE        "./dataset/00_11_11_1550177690.txt"
-
-
-
-
 
 ///////////////////////////////////////////////////////
-void readFile()
+bool readFile(std::string fileName)
 {
-   std::ifstream file(FILE, std::ios::binary);
-   std::streambuf* raw_buffer = file.rdbuf();
-   char* block = new char[16384];
-   raw_buffer->sgetn(block, 16384);
-
-    // std::cout << block;
-
-    memset(&dataSet, 0, SIZE_MAXROWS * SIZE_MAXCOLUMNS);
-
-    int currentRow = 0;
-    
-    char *pch;
-    pch = strtok (block,"\n");
-    while (pch != NULL)
+    std::string line;
+    std::ifstream myfile (fileName);
+    if (myfile.is_open())
     {
-        if (*pch == fs_wall) {
-            memcpy(dataSet[currentRow], pch, strlen(pch));
-            currentRow++;
+        memset(&dataSet, 0, SIZE_MAXROWS * SIZE_MAXCOLUMNS);
+        int currentRow = 0;
+        while ( std::getline (myfile,line))
+        {
+            // std::cout << line << '\n';
 
-        } else {
-            sscanf(pch, "start %d, %d", &point_start.y, &point_start.x);
-            sscanf(pch, "end %d, %d", &point_end.y, &point_end.x);
+            if (line.at(0) == fs_wall) {
+                memcpy(dataSet[currentRow], line.c_str(), strlen(line.c_str()));
+                currentRow++;
+
+            } else {
+                sscanf(line.c_str(), "start %d, %d", &point_start.y, &point_start.x);
+                sscanf(line.c_str(), "end %d, %d", &point_end.y, &point_end.x);
+            }
         }
-
-        // printf ("%s\n",pch);
-        pch = strtok (NULL, "\n");
+        myfile.close(); 
+        return true;
     }
-
-   delete[] block;
+    else return false;
 }
 
 ///////////////////////////////////////////////////////

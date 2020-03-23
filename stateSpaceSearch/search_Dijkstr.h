@@ -9,7 +9,9 @@
 
 class search_Dijkstr : public searchAlgo
 {
+protected:
     std::vector <std::vector <point>> frontFocusRoutes;
+    int route_focus_index;
 
 
     bool checkRoute(std::vector <point> r)
@@ -41,7 +43,7 @@ class search_Dijkstr : public searchAlgo
         {
             setPointVal(p, fs_beenHere);
             
-            std::vector <point> r = frontFocusRoutes.front();
+            std::vector <point> r = frontFocusRoutes.at(route_focus_index);
             r.push_back(p);
 
             frontFocusRoutes.push_back(r);
@@ -55,30 +57,40 @@ class search_Dijkstr : public searchAlgo
         return false;
     }
 
+    virtual int getNextRouteIndex()
+    {
+
+        return 0;
+    }
 
 public:
     virtual void start() override
     {
         frontFocusRoutes.push_back({point_start});
+
+        route_focus_index = 0;
                 
-        while (!pointsEqual(frontFocusRoutes.front().back(), point_end)) 
+        while (!pointsEqual(frontFocusRoutes.at(route_focus_index).back(), point_end)) 
         {
-            if (checkRoute(frontFocusRoutes.front())) break;
+            ctr_iterations++;
+
+            if (checkRoute(frontFocusRoutes.at(route_focus_index))) break;
 
             SHOW
 
-            frontFocusRoutes.erase(frontFocusRoutes.begin());
-            setPointVal(frontFocusRoutes.front().back(),fs_focus);
+            frontFocusRoutes.erase(frontFocusRoutes.begin() + route_focus_index);
+            route_focus_index = getNextRouteIndex();
+            setPointVal(frontFocusRoutes.at(route_focus_index).back(),fs_focus);
 
             SHOW
         }
 
-        frontFocusRoutes.front().erase(frontFocusRoutes.front().begin());
-        pasteRoute(frontFocusRoutes.front());
+        frontFocusRoutes.at(route_focus_index)
+            .erase(frontFocusRoutes.at(route_focus_index).begin());
+        pasteRoute(frontFocusRoutes.at(route_focus_index));
 
         SHOW
 
-        std::cout << "Finish!\n\n";
     }
 
 };
